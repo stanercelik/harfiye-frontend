@@ -287,6 +287,7 @@ export default function GameRoom() {
       setGamePhase('joining');
       socket.emit('join_room', { roomId, playerName });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, playerName]);
 
   // Mevcut oyuncuyu bul
