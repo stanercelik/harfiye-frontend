@@ -1,0 +1,433 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Header from '@/components/ui/Header';
+import socket from '@/lib/socket';
+
+type GameMode = 'create' | 'join' | null;
+
+export default function Home() {
+  const [playerName, setPlayerName] = useState('');
+  const [roomId, setRoomId] = useState('');
+  const [gameMode, setGameMode] = useState<GameMode>(null);
+  const [maxPlayers, setMaxPlayers] = useState(2);
+  const [wordLength, setWordLength] = useState(5);
+  const [timeLimit, setTimeLimit] = useState(30);
+  const [isTimeLimitEnabled, setIsTimeLimitEnabled] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  // Sayfa başlığını ayarla
+  useEffect(() => {
+          document.title = 'Harfiye - Gerçek Zamanlı Kelime Oyunu';
+  }, []);
+
+  const handleCreateRoom = () => {
+    if (!playerName.trim()) {
+      setError('Lütfen adınızı girin');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError('');
+    
+    // Socket.io bağlantısı kurulduktan sonra oda oluştur
+    if (!socket.connected) {
+      socket.connect();
+    }
+    
+    socket.emit('create_room', { 
+      playerName: playerName.trim(),
+      maxPlayers: maxPlayers,
+      wordLength: wordLength,
+      timeLimit: isTimeLimitEnabled ? timeLimit : null
+    });
+    
+    // Oda oluşturulduğunda cevabı dinle
+    socket.once('room_created', ({ roomId: newRoomId }: { roomId: string }) => {
+      setIsLoading(false);
+      // Oda sayfasına yönlendir
+      router.push(`/oda/${newRoomId}?playerName=${encodeURIComponent(playerName.trim())}`);
+    });
+    
+    // Hata durumunu dinle
+    socket.once('error', ({ message }: { message: string }) => {
+      setIsLoading(false);
+      setError(message);
+    });
+  };
+
+  const handleJoinRoom = () => {
+    if (!playerName.trim()) {
+      setError('Lütfen adınızı girin');
+      return;
+    }
+    
+    if (!roomId.trim()) {
+      setError('Lütfen oda kodunu girin');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError('');
+    
+    // Oda sayfasına yönlendir (oda kontrolü orada yapılacak)
+    router.push(`/oda/${roomId.trim().toUpperCase()}?playerName=${encodeURIComponent(playerName.trim())}`);
+  };
+
+  const resetForm = () => {
+    setPlayerName('');
+    setRoomId('');
+    setMaxPlayers(2);
+    setWordLength(5);
+    setTimeLimit(30);
+    setIsTimeLimitEnabled(true);
+    setGameMode(null);
+    setError('');
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      
+      <main className="flex-1 px-2 sm:px-4 py-4 sm:py-8">
+        <div className="max-w-6xl mx-auto">
+          
+          {/* Ana Başlık - Responsive boyutlar */}
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-3 sm:mb-6 gradient-animate">
+              Harfiye
+            </h1>
+            <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-2 sm:mb-3">
+              Gerçek zamanlı, çok oyunculu kelime oyunu
+            </p>
+            <p className="text-sm sm:text-base md:text-lg text-slate-500">
+              Rakibinle aynı anda aynı kelimeyi bulmaya çalış!
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            {/* Sol Kolon: Oyun Formu */}
+            <div className="order-1 lg:order-1 flex justify-center">
+              <div className="w-full max-w-md">
+                {!gameMode ? (
+                  /* Mod Seçim Butonları */
+                  <div className="space-y-4 sm:space-y-6">
+                    <button
+                      onClick={() => setGameMode('create')}
+                      className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold py-4 sm:py-5 px-6 sm:px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl btn-glow"
+                    >
+                      <div className="flex items-center justify-center space-x-3">
+                        <span className="text-xl sm:text-2xl">🚀</span>
+                        <span className="text-base sm:text-lg">Yeni Oda Oluştur</span>
+                      </div>
+                    </button>
+                    
+                    <button
+                      onClick={() => setGameMode('join')}
+                      className="w-full bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 hover:border-cyan-400 hover:from-slate-50 hover:to-slate-100 text-slate-700 font-semibold py-4 sm:py-5 px-6 sm:px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl"
+                    >
+                      <div className="flex items-center justify-center space-x-3">
+                        <span className="text-xl sm:text-2xl">🎯</span>
+                        <span className="text-base sm:text-lg">Odaya Katıl</span>
+                      </div>
+                    </button>
+                  </div>
+                ) : (
+                  /* Form */
+                  <div className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 glass">
+                    <div className="flex items-center justify-between mb-6 sm:mb-8">
+                      <h2 className="text-xl sm:text-2xl font-semibold text-slate-800">
+                        {gameMode === 'create' ? '🚀 Oda Oluştur' : '🎯 Odaya Katıl'}
+                      </h2>
+                      <button
+                        onClick={resetForm}
+                        className="text-slate-500 hover:text-slate-700 transition-colors text-xl hover:scale-110 transform"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="space-y-4 sm:space-y-6">
+                      {/* İsim Girişi */}
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2 sm:mb-3">
+                          Adınız
+                        </label>
+                        <input
+                          type="text"
+                          value={playerName}
+                          onChange={(e) => setPlayerName(e.target.value)}
+                          placeholder="Adınızı girin"
+                          maxLength={20}
+                          className="w-full px-3 sm:px-4 py-3 sm:py-4 border border-slate-300 rounded-xl bg-white text-slate-800 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all shadow-sm focus:shadow-md text-sm sm:text-base"
+                          disabled={isLoading}
+                        />
+                      </div>
+
+                      {/* Oyuncu Sayısı Seçimi (sadece oda oluşturma modunda) */}
+                      {gameMode === 'create' && (
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-2 sm:mb-3">
+                            Maksimum Oyuncu: {maxPlayers} kişi
+                          </label>
+                          <div className="space-y-3">
+                            <input
+                              type="range"
+                              min="2"
+                              max="5"
+                              value={maxPlayers}
+                              onChange={(e) => setMaxPlayers(parseInt(e.target.value))}
+                              className="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer slider"
+                              disabled={isLoading}
+                            />
+                            <div className="flex justify-between text-xs text-slate-500 px-1">
+                              <span>2</span>
+                              <span>3</span>
+                              <span>4</span>
+                              <span>5</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Kelime Uzunluğu Seçimi (sadece oda oluşturma modunda) */}
+                      {gameMode === 'create' && (
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-2 sm:mb-3">
+                            Kelime Uzunluğu: {wordLength} harf
+                          </label>
+                          <div className="space-y-3">
+                            <input
+                              type="range"
+                              min="5"
+                              max="7"
+                              value={wordLength}
+                              onChange={(e) => setWordLength(parseInt(e.target.value))}
+                              className="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer slider"
+                              disabled={isLoading}
+                            />
+                            <div className="flex justify-between text-xs text-slate-500 px-1">
+                              <span>5 harf</span>
+                              <span>6 harf</span>
+                              <span>7 harf</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Zaman Sınırı Ayarları (sadece oda oluşturma modunda) */}
+                      {gameMode === 'create' && (
+                        <div>
+                          <div className="flex items-center justify-between mb-2 sm:mb-3">
+                            <label className="text-sm font-medium text-slate-700">
+                              Zaman Sınırı
+                            </label>
+                            <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                              <span className={`${!isTimeLimitEnabled ? 'text-slate-900 font-medium' : 'text-slate-500'}`}>
+                                Sınırsız
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setIsTimeLimitEnabled(!isTimeLimitEnabled)}
+                                className={`relative inline-flex h-5 w-9 sm:h-6 sm:w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 ${
+                                  isTimeLimitEnabled ? 'bg-cyan-600' : 'bg-slate-300'
+                                }`}
+                                disabled={isLoading}
+                              >
+                                <span
+                                  className={`inline-block h-3 w-3 sm:h-4 sm:w-4 transform rounded-full bg-white transition-transform ${
+                                    isTimeLimitEnabled ? 'translate-x-5 sm:translate-x-6' : 'translate-x-1'
+                                  }`}
+                                />
+                              </button>
+                              <span className={`${isTimeLimitEnabled ? 'text-slate-900 font-medium' : 'text-slate-500'}`}>
+                                Sınırlı
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {isTimeLimitEnabled && (
+                            <div className="space-y-3">
+                              <div className="text-center">
+                                <span className="text-base sm:text-lg font-semibold text-slate-800">
+                                  {timeLimit} saniye
+                                </span>
+                                <p className="text-xs text-slate-500">
+                                  Her kelime için süre
+                                </p>
+                              </div>
+                              
+                              <div className="flex justify-center flex-wrap space-x-1 sm:space-x-2 gap-1">
+                                {[30, 35, 60, 75, 90].map((seconds) => (
+                                  <button
+                                    key={seconds}
+                                    type="button"
+                                    onClick={() => setTimeLimit(seconds)}
+                                    className={`px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                                      timeLimit === seconds
+                                        ? 'bg-cyan-600 text-white shadow-md'
+                                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                    }`}
+                                    disabled={isLoading}
+                                  >
+                                    {seconds}s
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Oda Kodu (sadece katılma modunda) */}
+                      {gameMode === 'join' && (
+                        <div>
+                          <label className="block text-sm font-medium text-slate-700 mb-2 sm:mb-3">
+                            Oda Kodu
+                          </label>
+                          <input
+                            type="text"
+                            value={roomId}
+                            onChange={(e) => setRoomId(e.target.value.toUpperCase())}
+                            placeholder="Oda kodunu girin (örn: ABC123)"
+                            maxLength={6}
+                            className="w-full px-3 sm:px-4 py-3 sm:py-4 border border-slate-300 rounded-xl bg-white text-slate-800 placeholder-slate-500 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all shadow-sm focus:shadow-md uppercase text-sm sm:text-base"
+                            disabled={isLoading}
+                          />
+                        </div>
+                      )}
+
+                      {/* Hata Mesajı */}
+                      {error && (
+                        <div className="bg-gradient-to-r from-red-50 to-rose-50 border border-red-200 rounded-xl p-3 sm:p-4">
+                          <p className="text-red-600 text-sm font-medium">
+                            {error}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Aksiyon Butonu */}
+                      <button
+                        onClick={gameMode === 'create' ? handleCreateRoom : handleJoinRoom}
+                        disabled={isLoading || !playerName.trim() || (gameMode === 'join' && !roomId.trim())}
+                        className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:from-slate-400 disabled:to-slate-500 text-white font-semibold py-3 sm:py-4 px-6 rounded-xl transition-all duration-300 disabled:cursor-not-allowed disabled:transform-none transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl btn-glow text-sm sm:text-base"
+                      >
+                        {isLoading ? (
+                          <div className="flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
+                            {gameMode === 'create' ? 'Oda Oluşturuluyor...' : 'Katılıyor...'}
+                          </div>
+                        ) : (
+                          gameMode === 'create' ? 'Oda Oluştur' : 'Odaya Katıl'
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Sağ Kolon: Nasıl Oynanır - Kompakt */}
+            <div className="order-2 lg:order-2">
+              <div className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-600 mb-4 sm:mb-6 text-center">
+                  🎯 Nasıl Oynanır?
+                </h2>
+
+                {/* Kompakt Adımlar */}
+                <div className="space-y-4 sm:space-y-6">
+                  {/* Adım 1 */}
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                      <span className="text-sm sm:text-lg lg:text-xl font-bold text-white">1</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-base sm:text-lg lg:text-xl font-bold text-amber-600 mb-1 sm:mb-2">Oda Kur</h3>
+                      <p className="text-xs sm:text-sm lg:text-base text-slate-600">
+                        Oda oluştur ve arkadaşına linki gönder.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Adım 2 */}
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                      <span className="text-sm sm:text-lg lg:text-xl font-bold text-white">2</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-base sm:text-lg lg:text-xl font-bold text-amber-600 mb-1 sm:mb-2">Kelime Bul</h3>
+                      <p className="text-xs sm:text-sm lg:text-base text-slate-600">
+                        Gizli kelimeyi 6 denemede bulmaya çalış!
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Adım 3 */}
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                      <span className="text-sm sm:text-lg lg:text-xl font-bold text-white">3</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-base sm:text-lg lg:text-xl font-bold text-amber-600 mb-1 sm:mb-2">Renkleri Takip Et</h3>
+                      <p className="text-xs sm:text-sm lg:text-base text-slate-600 mb-3 sm:mb-4">
+                        Yeşil: Doğru, Sarı: Var ama yanlış yer, Gri: Yok
+                      </p>
+                      
+                      {/* Mini Örnek */}
+                      <div className="flex justify-center gap-1 sm:gap-2">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                          <span className="text-xs sm:text-sm lg:text-base font-bold text-white">K</span>
+                        </div>
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-yellow-500 rounded-lg flex items-center justify-center">
+                          <span className="text-xs sm:text-sm lg:text-base font-bold text-white">E</span>
+                        </div>
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-slate-500 rounded-lg flex items-center justify-center">
+                          <span className="text-xs sm:text-sm lg:text-base font-bold text-white">L</span>
+                        </div>
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-slate-500 rounded-lg flex items-center justify-center">
+                          <span className="text-xs sm:text-sm lg:text-base font-bold text-white">İ</span>
+                        </div>
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                          <span className="text-xs sm:text-sm lg:text-base font-bold text-white">E</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Adım 4 */}
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                      <span className="text-sm sm:text-lg lg:text-xl font-bold text-white">4</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-base sm:text-lg lg:text-xl font-bold text-amber-600 mb-1 sm:mb-2">Kazan!</h3>
+                      <p className="text-xs sm:text-sm lg:text-base text-slate-600">
+                        İlk bulan kazanır! Hızlı ol.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Detaylı bilgi linki */}
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-200 text-center">
+                  <a 
+                    href="/nasil-oynanir"
+                    className="inline-flex items-center text-cyan-600 hover:text-cyan-700 font-medium text-sm sm:text-base transition-colors"
+                  >
+                    Detaylı Kurallar
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

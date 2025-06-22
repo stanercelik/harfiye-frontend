@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /oda/
+
+# Önemli: /oda/ dizini dinamik oyun odalarını içerir ve indekslenmemelidir
+# Bu sayfalar zaten noindex meta tag'i ile işaretlenmiştir
+
+Sitemap: https://harfiye.com/sitemap.xml 
