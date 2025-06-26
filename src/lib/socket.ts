@@ -17,8 +17,8 @@ function getSocketURL(): string {
       return 'http://localhost:3002';
     }
     
-    // IP adresi durumları
-    return `${protocol}//${hostname}:3002`;
+    // Production ortamında port ekleme - Render, Vercel, vb. otomatik port ataması yapıyor
+    return `${protocol}//${hostname}`;
   }
   
   // Server-side rendering durumunda varsayılan
