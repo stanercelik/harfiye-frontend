@@ -354,15 +354,16 @@ export default function GameRoom() {
     if (gamePhase !== 'playing') return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const key = turkishToLowerCase(event.key);
+      const key = event.key.toLowerCase();
 
       if (key === 'enter') {
         handleEnter();
       } else if (key === 'backspace') {
         handleBackspace();
       } else if (key.length === 1 && /^[a-zçğıöşüA-ZÇĞIİÖŞÜ]$/.test(key)) {
-        const upperKey = key.toUpperCase();
-        handleKeyPress(upperKey);
+        // Türkçe karaktere dönüştür
+        const turkishUpperKey = turkishToUpperCase(key);
+        handleKeyPress(turkishUpperKey);
       }
     };
 

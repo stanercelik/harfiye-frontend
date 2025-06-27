@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { turkishToUpperCase } from '@/lib/words';
 
 interface TileProps {
   letter?: string;
@@ -59,7 +60,7 @@ export default function Tile({ letter = '', status, animate = false, delay = 0 }
         animationDelay: animate ? `${delay}ms` : undefined,
       }}
     >
-      {letter.toUpperCase()}
+      {turkishToUpperCase(letter)}
     </div>
   );
 } 
