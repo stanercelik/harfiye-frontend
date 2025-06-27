@@ -1,28 +1,15 @@
 import { io, Socket } from 'socket.io-client';
 
-// Socket URL'ini dinamik olarak belirle
+// Socket URL'ini SADECE environment değişkeninden al
 function getSocketURL(): string {
-  // Eğer environment variable varsa onu kullan
-  if (process.env.NEXT_PUBLIC_SOCKET_URL) {
-    return process.env.NEXT_PUBLIC_SOCKET_URL;
+  const url = process.env.NEXT_PUBLIC_SOCKET_URL;
+
+  // Eğer .env dosyasını ayarlamayı unutursanız bu hata size yardımcı olacaktır.
+  if (!url) {
+    throw new Error("HATA: NEXT_PUBLIC_SOCKET_URL environment değişkeni tanımlanmamış. Lütfen .env.local veya Vercel ayarlarınızı kontrol edin.");
   }
   
-  // Tarayıcı ortamında ise, mevcut hostname'i kullan
-  if (typeof window !== 'undefined') {
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    
-    // Localhost durumları
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:3002';
-    }
-    
-    // Production ortamında port ekleme - Render, Vercel, vb. otomatik port ataması yapıyor
-    return `${protocol}//${hostname}`;
-  }
-  
-  // Server-side rendering durumunda varsayılan
-  return 'http://localhost:3002';
+  return url;
 }
 
 const SOCKET_URL = getSocketURL();
@@ -37,8 +24,8 @@ const socket: Socket = io(SOCKET_URL, {
   timeout: 10000 // 10 saniye timeout
 });
 
-// Debug amaçlı event listener'lar
-console.log('🔧 Socket.IO URL:', SOCKET_URL);
+// Debug amaçlı event listener'lar (bunlar çok faydalı, kalsın!)
+console.log('🔧 Socket.IO bağlantısı için hedef URL:', SOCKET_URL);
 
 socket.on('connect', () => {
   console.log('✅ Socket.IO bağlandı:', socket.id);
