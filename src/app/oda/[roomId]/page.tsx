@@ -72,8 +72,8 @@ export default function GameRoom() {
   // AdSense reklamlarını engelle
   useEffect(() => {
     // AdSense otomatik reklamlarını devre dışı bırak
-    if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
-      (window as any).adsbygoogle.loaded = true;
+    if (typeof window !== 'undefined' && (window as typeof window & { adsbygoogle?: { loaded?: boolean } }).adsbygoogle) {
+      ((window as typeof window & { adsbygoogle: { loaded?: boolean } }).adsbygoogle.loaded = true);
     }
     
     // robots meta etiketi ekle
@@ -308,7 +308,6 @@ export default function GameRoom() {
       setGamePhase('joining');
       socket.emit('join_room', { roomId, playerName });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, playerName]);
 
   // Mevcut oyuncuyu bul

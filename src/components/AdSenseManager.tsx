@@ -26,7 +26,10 @@ export default function AdSenseManager() {
       // AdSense'in hazır olduğundan emin ol
       script.onload = () => {
         try {
-          ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+          interface WindowWithAdSense extends Window {
+            adsbygoogle?: unknown[];
+          }
+          ((window as WindowWithAdSense).adsbygoogle = (window as WindowWithAdSense).adsbygoogle || []).push({});
         } catch (e) {
           console.warn('AdSense yükleme hatası:', e);
         }
@@ -42,7 +45,10 @@ export default function AdSenseManager() {
 
       // AdSense global değişkenini temizle
       if (typeof window !== 'undefined') {
-        (window as any).adsbygoogle = undefined;
+        interface WindowWithAdSense extends Window {
+          adsbygoogle?: unknown[];
+        }
+        (window as WindowWithAdSense).adsbygoogle = undefined;
       }
     }
   }, [pathname]);

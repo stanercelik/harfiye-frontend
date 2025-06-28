@@ -489,7 +489,7 @@ export default function Home() {
                   <div className="text-xl">👥</div>
                   <div>
                     <h3 className="font-semibold text-slate-800">Çok Oyunculu</h3>
-                    <p className="text-slate-600 text-sm">2'den 6 kişiye kadar arkadaşlarınızla oynayın</p>
+                    <p className="text-slate-600 text-sm">2&apos;den 6 kişiye kadar arkadaşlarınızla oynayın</p>
                   </div>
                 </div>
                 
