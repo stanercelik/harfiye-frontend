@@ -19,9 +19,17 @@ export default function Home() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  // Sayfa başlığını ayarla
+  // Sayfa başlığını ve meta açıklamasını ayarla
   useEffect(() => {
-          document.title = 'Harfiye - Gerçek Zamanlı Kelime Oyunu';
+    document.title = 'Harfiye - Gerçek Zamanlı Kelime Oyunu';
+    
+    // Meta açıklama güncelle
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 
+        'Arkadaşlarınızla gerçek zamanlı Türkçe kelime düellosu! 5, 6, 7 harfli kelimelerle çok oyunculu yarış. Ücretsiz, kayıt gerektirmez. Hemen oda kurun ve Harfiye oyununa başlayın!'
+      );
+    }
   }, []);
 
   const handleCreateRoom = () => {
@@ -426,6 +434,153 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* SEO ve İçerik Artırma - Alt Bilgi Bölümü */}
+        <div className="mt-12 lg:mt-16 space-y-8 lg:space-y-12">
+          {/* Avantajlar */}
+          <section className="text-center">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 mb-6 sm:mb-8">
+              🌟 Neden Harfiye?
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div className="text-4xl mb-4">🏆</div>
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">Rekabetçi Oyun</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
+                  Arkadaşlarınızla gerçek zamanlı yarışın. Aynı kelimeyi aynı anda bulmaya çalışarak heyecanı katlayın.
+                </p>
+              </div>
+              
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div className="text-4xl mb-4">🧠</div>
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">Zihinsel Gelişim</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
+                  Kelime haznenizi geliştirin, Türkçe dilindeki zenginlikleri keşfedin ve analitik düşünce becerinizi artırın.
+                </p>
+              </div>
+              
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div className="text-4xl mb-4">⚡</div>
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">Hızlı Başlangıç</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
+                  Kayıt olmaya gerek yok! Hemen oda kurun, linki arkadaşlarınıza gönderin ve oynamaya başlayın.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Özellikler */}
+          <section className="bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-2xl shadow-xl p-6 sm:p-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-6 sm:mb-8 text-center">
+              ⚙️ Oyun Özellikleri
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <div className="text-xl">🔤</div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800">Çoklu Kelime Uzunluğu</h3>
+                    <p className="text-slate-600 text-sm">5, 6 ve 7 harfli kelimelerle farklı zorluk seviyeleri</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="text-xl">👥</div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800">Çok Oyunculu</h3>
+                    <p className="text-slate-600 text-sm">2'den 6 kişiye kadar arkadaşlarınızla oynayın</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="text-xl">⏱️</div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800">Zaman Kontrolü</h3>
+                    <p className="text-slate-600 text-sm">Zaman sınırını kendiniz belirleyin veya sınırsız oynayın</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <div className="text-xl">🇹🇷</div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800">Türkçe Odaklı</h3>
+                    <p className="text-slate-600 text-sm">Binlerce Türkçe kelime ile zengin bir oyun deneyimi</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="text-xl">📱</div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800">Mobil Uyumlu</h3>
+                    <p className="text-slate-600 text-sm">Telefon, tablet ve bilgisayarınızda sorunsuz çalışır</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="text-xl">🔄</div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800">Rövanş Sistemi</h3>
+                    <p className="text-slate-600 text-sm">Oyun bittiğinde hemen rövanş alabilirsiniz</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Popüler Kelime Uzunlukları */}
+          <section className="text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-6 sm:mb-8">
+              📊 Popüler Oyun Modları
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 sm:p-6">
+                <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-2">5 Harf</div>
+                <div className="text-green-800 font-medium mb-1">En Popüler</div>
+                <div className="text-green-700 text-sm">Hızlı ve eğlenceli oyunlar</div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 sm:p-6">
+                <div className="text-2xl sm:text-3xl font-bold text-yellow-600 mb-2">6 Harf</div>
+                <div className="text-yellow-800 font-medium mb-1">Orta Zorluk</div>
+                <div className="text-yellow-700 text-sm">Denge ve strateji</div>
+              </div>
+              
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-4 sm:p-6">
+                <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-2">7 Harf</div>
+                <div className="text-purple-800 font-medium mb-1">Uzman Seviye</div>
+                <div className="text-purple-700 text-sm">Gerçek kelime ustaları için</div>
+              </div>
+            </div>
+          </section>
+
+          {/* Alt Bilgi ve Linkler */}
+          <section className="bg-slate-100 border border-slate-200 rounded-2xl p-6 sm:p-8 text-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-4">
+              Harfiye Hakkında Daha Fazla Bilgi
+            </h2>
+            <p className="text-slate-600 mb-6 leading-relaxed">
+              Harfiye, Türkçe kelime oyunlarını sosyal ve rekabetçi bir boyuta taşıyan ücretsiz web platformudur. 
+              Modern teknolojiler kullanılarak geliştirilmiş olup, arkadaşlarınızla eğlenceli vakit geçirmek 
+              için tasarlanmıştır.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+              <a
+                href="/nasil-oynanir"
+                className="inline-flex items-center justify-center bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+              >
+                📖 Oyun Kuralları
+              </a>
+              <a
+                href="/hakkimizda"
+                className="inline-flex items-center justify-center bg-slate-600 hover:bg-slate-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+              >
+                ℹ️ Hakkımızda
+              </a>
+            </div>
+          </section>
         </div>
       </main>
     </div>

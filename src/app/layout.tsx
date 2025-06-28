@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import AdSenseManager from '../components/AdSenseManager';
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -136,17 +137,11 @@ export default function RootLayout({
             })
           }}
         />
-        
-        {/* Google AdSense */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2958213735333735"
-          crossOrigin="anonymous"
-        />
       </head>
       <body
         className={`${poppins.variable} font-sans antialiased bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 text-slate-800 min-h-screen`}
       >
+        <AdSenseManager />
         {children}
       </body>
     </html>

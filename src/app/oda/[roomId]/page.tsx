@@ -69,6 +69,27 @@ export default function GameRoom() {
   const [rematchCountdownSeconds, setRematchCountdownSeconds] = useState(3);
   const [isRivalsExpanded, setIsRivalsExpanded] = useState(false);
 
+  // AdSense reklamlarını engelle
+  useEffect(() => {
+    // AdSense otomatik reklamlarını devre dışı bırak
+    if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
+      (window as any).adsbygoogle.loaded = true;
+    }
+    
+    // robots meta etiketi ekle
+    const metaRobots = document.createElement('meta');
+    metaRobots.name = 'robots';
+    metaRobots.content = 'noindex, nofollow';
+    document.head.appendChild(metaRobots);
+
+    // Temizleme fonksiyonu
+    return () => {
+      if (document.head.contains(metaRobots)) {
+        document.head.removeChild(metaRobots);
+      }
+    };
+  }, []);
+
   // Oyun durumunu temizle
   const resetGameState = () => {
     setCurrentGuess('');
